@@ -96,6 +96,11 @@ The friction doesn't belong everywhere. It belongs at the moment before you scal
 
 - [writing-interviewer](https://github.com/KarthikRaju391/writing-interviewer-skill): Same philosophy applied to writing — interviews you instead of writing for you
 
+## Contributors
+
+- [Karthik Raju](https://github.com/KarthikRaju391)
+- [Amp](https://ampcode.com)
+
 ## License
 
 MIT
