@@ -48,9 +48,18 @@ When triggered, the skill interviews you — one question at a time:
 
 It pushes back on vague answers. It won't let you off the hook.
 
-### The Pattern Brief
+### Pattern Briefs
 
-The gate artifact is a `docs/pattern.md` written in **your words** (not the AI's):
+A codebase has multiple patterns. Each gets its own file under `docs/patterns/`:
+
+```
+docs/patterns/
+  channels-and-events.md
+  authentication.md
+  message-persistence.md
+```
+
+The gate checks whether the **relevant pattern** for the current change has been established. Each brief is written in **your words** (not the AI's):
 
 - Pattern name
 - Core components + ownership

@@ -24,8 +24,9 @@ Track phase in `/.friction-first/state.yml` at the project root.
 - Do not proceed with large changes until the interview passes.
 
 ### 3. pattern_established
-- The developer has articulated the pattern and it's documented in `docs/pattern.md`.
-- AI can go fast. Large features, broad changes are allowed.
+- The developer has articulated the pattern and it's documented in `docs/patterns/<pattern-name>.md`.
+- AI can go fast for changes within established patterns.
+- A new scale moment in an **unestablished** area triggers a new interview.
 
 ### 4. scaling
 - Normal operation. Periodic check-ins to ensure the pattern hasn't drifted.
@@ -79,7 +80,7 @@ When a scale moment is detected and phase is NOT `pattern_established`:
 1. **Pause.** Do not start implementing.
 2. **Explain.** "Before we scale this, I need to make sure you can describe the system's pattern. Let's do a quick interview."
 3. **Interview.** Ask ONE question at a time. Push back on vague answers.
-4. **Document.** Create/update `docs/pattern.md` using the developer's own words.
+4. **Document.** Create/update `docs/patterns/<pattern-name>.md` using the developer's own words.
 5. **Verify.** Check the Pattern Brief against the passing rubric.
 6. **Update state.** Move to `pattern_established` only after passing.
 7. **Resume.** Proceed with the original request at full speed.
@@ -106,9 +107,20 @@ Ask these questions **one at a time**. Wait for an answer before asking the next
 6. **"What's explicitly NOT part of this pattern?"**
    Defines boundaries.
 
-## Pattern Brief (docs/pattern.md)
+## Pattern Briefs (docs/patterns/)
 
-The gate artifact. Written in the developer's words, not invented by the AI.
+A codebase can have multiple patterns. Each gets its own file:
+
+```
+docs/patterns/
+  channels-and-events.md
+  authentication.md
+  message-persistence.md
+```
+
+The gate checks whether the **relevant pattern** for the current change has been established. If the developer is scaling the eventing system, they need the eventing pattern — not the auth pattern.
+
+Each pattern brief is written in the developer's words, not invented by the AI.
 
 Must include:
 - **Pattern name** — one sentence
@@ -136,16 +148,23 @@ If any are missing, stay in `pattern_candidate` and keep interviewing.
 
 ```yaml
 phase: exploring
-pattern:
-  name: ""
-  brief_path: "docs/pattern.md"
-  last_verified: null
+patterns:
+  - name: "channels-and-events"
+    brief_path: "docs/patterns/channels-and-events.md"
+    status: established
+    last_verified: 2026-02-08
+  - name: "authentication"
+    brief_path: "docs/patterns/authentication.md"
+    status: candidate
+    last_verified: null
 gates:
   last_gate_reason: ""
   last_gate_at: null
 checkins:
   substantial_changes_since_checkin: 0
 ```
+
+The overall `phase` reflects the project's general state. Individual patterns track their own `status` (`candidate` or `established`). A scale moment in an area with no matching pattern triggers a new interview and adds a new entry.
 
 Create this file when the skill is first triggered. Update it as phases change.
 
