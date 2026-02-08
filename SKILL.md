@@ -107,6 +107,14 @@ Ask these questions **one at a time**. Wait for an answer before asking the next
 6. **"What's explicitly NOT part of this pattern?"**
    Defines boundaries.
 
+### Early Pass
+
+Not every interview needs all 6 questions. After question 2 or 3, if the developer's answers already cover the passing rubric — they've named the pattern crisply, described components with ownership, mentioned invariants, and given concrete file paths — skip the remaining questions and pass them through.
+
+The signal for an early pass: the developer's answers are **specific** (file paths, data shapes, concrete flows) rather than **abstract** (vague descriptions, hand-waving). If their first two answers read like they could write the Pattern Brief right now, they can.
+
+Do NOT use early pass if answers are long but vague. Length is not depth.
+
 ## Pattern Briefs (docs/patterns/)
 
 A codebase can have multiple patterns. Each gets its own file:
