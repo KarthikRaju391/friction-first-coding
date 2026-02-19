@@ -1,0 +1,28 @@
+# Friction-First Coding state example
+# Copy to: ./.friction-first/state.yml
+
+project_mode: exploring # informational only (exploring | scaling)
+
+patterns:
+  channels-and-events:
+    brief_path: docs/patterns/channels-and-events.md
+    status: established # candidate | established | drifting
+    last_verified: 2026-02-08
+
+  authentication:
+    brief_path: docs/patterns/authentication.md
+    status: candidate
+    last_verified: null
+
+  billing-and-subscriptions:
+    brief_path: docs/patterns/billing-and-subscriptions.md
+    status: drifting
+    last_verified: 2026-01-21
+
+gates:
+  active_pattern: authentication
+  last_gate_reason: "Scaling auth without an established pattern brief"
+  last_gate_at: 2026-02-18T15:10:00Z
+
+checkins:
+  substantial_changes_since_checkin: 0

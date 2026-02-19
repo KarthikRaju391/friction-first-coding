@@ -16,14 +16,18 @@ If you can't describe how your system works, you can't debug it, extend it, or s
 
 ## How It Works
 
-The skill tracks your project through four phases:
+The skill tracks two kinds of state:
 
-| Phase | What Happens |
+1. **Project mode (informational):** `exploring` or `scaling`
+2. **Pattern status (enforced):** each pattern is independently `candidate`, `established`, or `drifting`
+
+| Pattern Status | What Happens |
 |---|---|
-| **exploring** | Build a basic vertical slice. No friction. |
-| **pattern_candidate** | Scale moment detected. Interview starts. |
-| **pattern_established** | You've articulated the pattern. AI goes fast. |
-| **scaling** | Normal operation with periodic check-ins. |
+| **candidate** | Scale moment detected for that pattern. Interview starts. |
+| **established** | Pattern is articulated and documented. AI can move fast in that area. |
+| **drifting** | Pattern changed over time; re-interview before more scaling in that area. |
+
+This is the key behavior: one established pattern must **not** disable gating for new patterns.
 
 ### Scale Moment Triggers
 
@@ -93,7 +97,28 @@ The skill activates automatically when it detects scale moments. You can also tr
 
 ## State Tracking
 
-The skill creates a small state file at `/.friction-first/state.yml` in your project root to persist phase across sessions. It also works with any agent CLI that can read YAML.
+The skill creates a state file at `./.friction-first/state.yml` in your project root.
+
+The important rule: gating is based on the **relevant pattern's status**, not a single global phase. This allows many patterns to emerge over time (e.g., auth, eventing, persistence), each with its own lifecycle.
+
+Example (see `state.example.yml` for a copy-paste starter):
+
+```yaml
+project_mode: exploring
+patterns:
+  channels-and-events:
+    brief_path: docs/patterns/channels-and-events.md
+    status: established
+    last_verified: 2026-02-08
+  authentication:
+    brief_path: docs/patterns/authentication.md
+    status: candidate
+    last_verified: null
+gates:
+  active_pattern: authentication
+  last_gate_reason: "Scaling auth without an established pattern brief"
+  last_gate_at: 2026-02-18T15:10:00Z
+```
 
 ## Origin
 

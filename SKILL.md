@@ -1,6 +1,6 @@
 ---
 name: friction-first-coding
-description: "A workflow gate for AI coding. Applies friction only at scale moments by interviewing the developer to ensure they can articulate the system's architectural pattern before delegating large changes. Tracks phase in a repo state file. Use when starting new projects, scaling up, or when asked to 'check my understanding' or 'do I understand this codebase'."
+description: "A workflow gate for AI coding. Applies friction only at scale moments by interviewing the developer to ensure they can articulate the system's architectural pattern before delegating large changes. Tracks per-pattern status in a repo state file. Use when starting new projects, scaling up, or when asked to 'check my understanding' or 'do I understand this codebase'."
 ---
 
 # Friction-First Coding
@@ -9,27 +9,22 @@ description: "A workflow gate for AI coding. Applies friction only at scale mome
 
 **Interview before you scale.** The developer must be able to explain, extend, and debug the system without the AI. This is not a code review tool. It checks *understanding*, not code quality.
 
-## Project Phases
+## State Model (Per Pattern, Not Global)
 
-Track phase in `/.friction-first/state.yml` at the project root.
+Track state in `./.friction-first/state.yml` at the project root.
 
-### 1. exploring
-- The developer is building a basic vertical slice, figuring things out.
-- AI helps with small, focused tasks.
-- No gate. Just build.
+### Project mode (informational)
+- `exploring`: building a basic vertical slice
+- `scaling`: normal operation across established patterns
 
-### 2. pattern_candidate
-- Triggered when a **scale moment** is detected.
-- Pause implementation. Start the **Pattern Interview**.
-- Do not proceed with large changes until the interview passes.
+### Pattern status (enforced)
+Each identified pattern has its own lifecycle:
 
-### 3. pattern_established
-- The developer has articulated the pattern and it's documented in `docs/patterns/<pattern-name>.md`.
-- AI can go fast for changes within established patterns.
-- A new scale moment in an **unestablished** area triggers a new interview.
+- `candidate`: scale moment detected, interview in progress
+- `established`: pattern brief passes rubric
+- `drifting`: previously established pattern no longer matches current code
 
-### 4. scaling
-- Normal operation. Periodic check-ins to ensure the pattern hasn't drifted.
+**Important:** Gate decisions are made per pattern. One established pattern must never disable gating for a new, unestablished pattern.
 
 ## Scale Moment Triggers
 
@@ -75,14 +70,14 @@ Do NOT gate on small, focused changes. Friction is rare but high-leverage.
 
 ## Gate Behavior
 
-When a scale moment is detected and phase is NOT `pattern_established`:
+When a scale moment is detected and the **relevant pattern** is missing or not `established`:
 
 1. **Pause.** Do not start implementing.
 2. **Explain.** "Before we scale this, I need to make sure you can describe the system's pattern. Let's do a quick interview."
 3. **Interview.** Ask ONE question at a time. Push back on vague answers.
 4. **Document.** Create/update `docs/patterns/<pattern-name>.md` using the developer's own words.
 5. **Verify.** Check the Pattern Brief against the passing rubric.
-6. **Update state.** Move to `pattern_established` only after passing.
+6. **Update state.** Set the relevant pattern's status to `established` only after passing (do not globally disable gating).
 7. **Resume.** Proceed with the original request at full speed.
 
 ## The Pattern Interview
@@ -142,7 +137,7 @@ Must include:
 
 ## Passing Rubric
 
-Do NOT mark as `pattern_established` until the developer can:
+Do NOT mark the relevant pattern as `established` until the developer can:
 
 - Name the pattern without hedging
 - Predict where a new feature would go (files, modules, flow)
@@ -150,40 +145,45 @@ Do NOT mark as `pattern_established` until the developer can:
 - Give one concrete extension recipe
 - Their description matches the actual repo structure (sanity-check against the codebase)
 
-If any are missing, stay in `pattern_candidate` and keep interviewing.
+If any are missing, keep that pattern in `candidate` and continue the interview.
 
-## State File (/.friction-first/state.yml)
+## State File (`./.friction-first/state.yml`)
 
 ```yaml
-phase: exploring
+project_mode: exploring
 patterns:
-  - name: "channels-and-events"
-    brief_path: "docs/patterns/channels-and-events.md"
+  channels-and-events:
+    brief_path: docs/patterns/channels-and-events.md
     status: established
     last_verified: 2026-02-08
-  - name: "authentication"
-    brief_path: "docs/patterns/authentication.md"
+  authentication:
+    brief_path: docs/patterns/authentication.md
     status: candidate
     last_verified: null
 gates:
   last_gate_reason: ""
   last_gate_at: null
+  active_pattern: null
 checkins:
   substantial_changes_since_checkin: 0
 ```
 
-The overall `phase` reflects the project's general state. Individual patterns track their own `status` (`candidate` or `established`). A scale moment in an area with no matching pattern triggers a new interview and adds a new entry.
+`project_mode` is informational. **Enforcement happens per pattern** via `patterns.<name>.status`.
 
-Create this file when the skill is first triggered. Update it as phases change.
+A scale moment in an area with no matching pattern must create a new `patterns.<name>` entry with `status: candidate`, run the interview, and only then move that specific pattern to `established`.
+
+Create this file when the skill is first triggered. Update it as pattern statuses change.
+
+For a starter template, see `state.example.yml` in this skill repository.
 
 ## Periodic Check-ins
 
-After `pattern_established`, every few substantial changes:
+After one or more patterns are established, every few substantial changes:
 
 - "Has the pattern changed since we last checked?"
 - "Is there a new extension point or boundary we should document?"
 
-If the pattern has shifted significantly, re-gate: move back to `pattern_candidate` and re-interview.
+If a pattern has shifted significantly, re-gate that pattern: set it to `drifting` (or `candidate`) and re-interview.
 
 ## What NOT To Do
 
